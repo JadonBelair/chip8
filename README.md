@@ -23,7 +23,8 @@ a chip 8 emulator written in rust
 
 ## Goals
 
-- [ ] better way of choosing which rom to load
-- [ ] screen wrap toggle
+- [X] better way of choosing which rom to load
+- [X] screen wrap toggle
+- [ ] allow changing of roms folder location
 - [ ] sound
 - [ ] find a way to speed up the program

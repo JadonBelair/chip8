@@ -1,11 +1,14 @@
 pub struct Display {
-    screen: [[u8; 64]; 32]
+    screen: [[u8; 64]; 32],
+
+    pub wrap: bool
 }
 
 impl Display {
     pub fn new() -> Self {
         Self {
-            screen: [[0; 64]; 32]
+            screen: [[0; 64]; 32],
+            wrap: true
         }
     }
 
@@ -17,14 +20,22 @@ impl Display {
         let mut col = false;
 
         for i in 0..8 {
-            let coord_x: usize = (x as usize + i) % 64;
-            let coord_y: usize = (y as usize) % 32;
-            if (byte & (0x80 >> i)) != 0 {
-                if self.screen[coord_y][coord_x] == 1 {
-                    col = true;
-                }
+            let mut coord_x: usize = x as usize + i;
+            let mut coord_y: usize = y as usize;
 
-                self.screen[coord_y][coord_x] ^= 1;
+            if self.wrap {
+                coord_x = coord_x % 64;
+                coord_y = coord_y % 32;
+            }
+
+            if coord_x < 64 && coord_y < 32 { 
+                if (byte & (0x80 >> i)) != 0 {
+                    if self.screen[coord_y][coord_x] == 1 {
+                        col = true;
+                    }
+
+                    self.screen[coord_y][coord_x] ^= 1;
+                }
             }
         }
 

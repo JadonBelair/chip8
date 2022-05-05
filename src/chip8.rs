@@ -22,7 +22,7 @@ const FONT: [u8; 80] = [
 
 pub struct Chip8 {
     pub keyboard: Keyboard,
-    display: Display,
+    pub display: Display,
 
     ram: [u8; 4096],
 
@@ -226,5 +226,23 @@ impl Chip8 {
         }
 
         col
+    }
+
+    pub fn reset(&mut self) {
+        self.display.clear();
+
+        for i in (0x200)..4096 {
+            self.ram[i] = 0;
+        }
+    
+        self.v = [0; 16];
+        self.i = 0;
+    
+        self.dt = 0;
+        self.st = 0;
+    
+        self.pc = 0x200;
+    
+        self.stack.clear();
     }
 }
