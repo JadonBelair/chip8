@@ -32,7 +32,7 @@ async fn main() {
     let mut rom: Vec<u8> = vec![0x12, 0x00];
 
     // gets all the games from the roms directory
-    let games: Vec<String> = if let Ok(dir) = read_dir(".\\rosms"){
+    let games: Vec<String> = if let Ok(dir) = read_dir(".\\roms"){
         dir.map(|x| x.unwrap().path().to_str().unwrap().to_owned()).collect()
     } else {
         Vec::new()
