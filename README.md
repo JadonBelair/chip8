@@ -21,6 +21,13 @@ a chip 8 emulator written in rust
 | A | S | D | F |
 | Z | X | C | V |
 
+## Images
+Menu for Choosing a rom to play
+![Rom Selection Menu](README%20images/Rom%20Menu.png)
+
+Connect 4 Running
+![Screenshot of The Connect 4 Game Running](README%20images/Connect4.png)
+
 ## Goals
 
 - [X] better way of choosing which rom to load
