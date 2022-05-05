@@ -200,7 +200,9 @@ impl Chip8 {
             },
             _ => panic!("Bad instruction: {:X?}", instruction)
         }
+    }
 
+    pub fn update_timers(&mut self) {
         if self.dt > 0 {
             self.dt -= 1;
         }
@@ -208,7 +210,6 @@ impl Chip8 {
         if self.st > 0 {
             self.st -= 1;
         }
-        
     }
 
     pub fn get_display(&self) -> [[u8; 64]; 32] {

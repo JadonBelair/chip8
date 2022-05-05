@@ -2,10 +2,11 @@ mod chip8;
 mod display;
 mod keyboard;
 
-use std::{fs::{read_dir, File}, io::Read};
+use std::{fs::{read_dir, File}, io::Read, time::{Instant, Duration}};
 use chip8::Chip8;
 use keyboard::KEYS;
-use macroquad::{audio, ui::{root_ui, widgets}, prelude::*};
+use macroquad::{ui::{root_ui, widgets}, prelude::*};
+use rodio;
 
 const CELL_SIZE: i32 = 20;
 
@@ -26,8 +27,16 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
 
+    // gets the users default audio output device
+    let device = rodio::default_output_device().unwrap();
+    let sink = rodio::Sink::new(&device);
+    
+    // generates the sine wave for the sound
+    let source = rodio::source::SineWave::new(440);
+    sink.append(source);
+    sink.pause();
+
     let mut playing = false;
-    let tone = audio::load_sound("440.wav").await.unwrap();
 
     let mut chip8 = Chip8::new();
 
@@ -35,7 +44,7 @@ async fn main() {
     let mut rom: Vec<u8> = vec![0x12, 0x00];
 
     // gets all the games from the roms directory
-    let games: Vec<String> = if let Ok(dir) = read_dir(".\\roms"){
+    let games: Vec<String> = if let Ok(dir) = read_dir(".\\roms") {
         dir.map(|x| x.unwrap().path().to_str().unwrap().to_owned()).collect()
     } else {
         Vec::new()
@@ -44,6 +53,8 @@ async fn main() {
     let mut show_games = false;
 
     chip8.load_rom(&rom);
+
+    let mut delta_time = Instant::now();
 
     loop {
 
@@ -57,6 +68,11 @@ async fn main() {
         // runs a single instruction from the ram
         chip8.run_instruction();
 
+        if delta_time.elapsed() > (Duration::from_millis(17)) {
+            chip8.update_timers();
+            delta_time = Instant::now();
+        }
+        
         // grabs the current state of the display for drawing
         let display = chip8.get_display();
 
@@ -123,13 +139,13 @@ async fn main() {
         
         // will only start playing the audio if it isnt alreadly playing
         if !playing && chip8.st > 0 {
-            audio::play_sound(tone, audio::PlaySoundParams {looped: true, ..Default::default()});
+            sink.play();
             playing = true;
         }
 
         // stops the audio and allows it to be played again
         if chip8.st == 0 {
-            audio::stop_sound(tone);
+            sink.pause();
             playing = false;
         }
 

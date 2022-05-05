@@ -9,5 +9,6 @@ edition = "2021"
 opt-level = 3
 
 [dependencies]
-macroquad = "0.3.16"
+macroquad = "*"
 rand = "0.8.5"
+rodio = "*"
