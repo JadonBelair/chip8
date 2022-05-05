@@ -5,7 +5,7 @@ mod keyboard;
 use std::{fs::{read_dir, File}, io::Read};
 use chip8::Chip8;
 use keyboard::KEYS;
-use macroquad::{ui::{root_ui, widgets}, prelude::*};
+use macroquad::{audio, ui::{root_ui, widgets}, prelude::*};
 
 const CELL_SIZE: i32 = 20;
 
@@ -25,6 +25,9 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
+
+    let mut playing = false;
+    let tone = audio::load_sound("440.wav").await.unwrap();
 
     let mut chip8 = Chip8::new();
 
@@ -116,6 +119,18 @@ async fn main() {
                     ui.label(vec2(20., 10.), "Please add games to the roms folder.");
                 }
             });
+        }
+        
+        // will only start playing the audio if it isnt alreadly playing
+        if !playing && chip8.st > 0 {
+            audio::play_sound(tone, audio::PlaySoundParams {looped: true, ..Default::default()});
+            playing = true;
+        }
+
+        // stops the audio and allows it to be played again
+        if chip8.st == 0 {
+            audio::stop_sound(tone);
+            playing = false;
         }
 
         next_frame().await;

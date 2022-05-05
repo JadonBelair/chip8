@@ -30,7 +30,7 @@ pub struct Chip8 {
     i: u16,
 
     dt: u8,
-    st: u8,
+    pub st: u8,
 
     pc: usize,
 
