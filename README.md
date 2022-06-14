@@ -34,4 +34,4 @@ Connect 4 Running
 - [X] screen wrap toggle
 - [ ] allow changing of roms folder location
 - [X] sound
-- [ ] find a way to speed up the program
+- [X] find a way to speed up the program
