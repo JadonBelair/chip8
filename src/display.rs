@@ -24,26 +24,24 @@ impl Display {
             let mut coord_y: usize = y as usize;
 
             if self.wrap {
-                coord_x = coord_x % 64;
-                coord_y = coord_y % 32;
+                coord_x %= 64;
+                coord_y %= 32;
             }
 
-            if coord_x < 64 && coord_y < 32 { 
-                if (byte & (0x80 >> i)) != 0 {
-                    if self.screen[coord_y][coord_x] == 1 {
-                        col = true;
-                    }
-
-                    self.screen[coord_y][coord_x] ^= 1;
+            if coord_x < 64 && coord_y < 32 && (byte & (0x80 >> i)) != 0 { 
+                if self.screen[coord_y][coord_x] == 1 {
+                    col = true;
                 }
+
+                self.screen[coord_y][coord_x] ^= 1;
             }
         }
 
-        return col;
+        col
     }
 
     pub fn get_screen(&self) -> [[u8; 64]; 32] {
-        return self.screen;
+        self.screen
     }
 
 }

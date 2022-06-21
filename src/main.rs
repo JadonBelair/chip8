@@ -6,7 +6,6 @@ use std::{fs::{read_dir, File}, io::Read, time::{Instant, Duration}};
 use chip8::Chip8;
 use keyboard::KEYS;
 use macroquad::{ui::{root_ui, widgets}, prelude::*};
-use rodio;
 
 const CELL_SIZE: i32 = 20;
 
@@ -57,6 +56,7 @@ async fn main() {
     let mut show_games = false;
     let mut show_speed = false;
 
+    // loads the dummy rom into the system
     chip8.load_rom(&rom);
 
     let mut delta_time = Instant::now();
@@ -88,10 +88,10 @@ async fn main() {
         clear_background(BLACK);
         
         // draws the display
-        for y in 0..32 {
-            for x in 0..64 {
+        for (y, row) in display.iter().enumerate() {
+            for (x, cell) in row.iter().enumerate() {
                 // only draws white pixels
-                if display[y][x] != 0 {
+                if *cell != 0 {
                     draw_rectangle((x as i32 * CELL_SIZE) as f32,
                         (y as i32 * CELL_SIZE) as f32 + Y_OFFSET,
                         CELL_SIZE as f32, CELL_SIZE as f32,
@@ -127,6 +127,7 @@ async fn main() {
             paused = !paused;
         }
 
+        // shows/hides the speed slider
         if speed_button.ui(&mut *root_ui()) {
             show_speed = !show_speed;
         }
@@ -134,16 +135,16 @@ async fn main() {
         // draw a list of all available roms if the user requested it
         if show_games {
             let window = widgets::Window::new(1, vec2(5., 25.), vec2(300.,
-                         if games.len() > 0 {500.} else {50.})).movable(false);
+                         if !games.is_empty() {500.} else {50.})).movable(false);
 
             window.ui(&mut *root_ui(), |ui| {
                 // only draws the game titles if there are any games to play
-                if games.len() > 0 {
-                    for i in 0..games.len() {
-                        if ui.button(vec2(0., 20. * i as f32), *&games[i].as_str()) {
+                if !games.is_empty() {
+                    for (i, name) in games.iter().enumerate() {
+                        if ui.button(vec2(0., 20. * i as f32), name.as_str()) {
                             rom = Vec::new();
 
-                            let mut game_file = File::open(&games[i]).unwrap();
+                            let mut game_file = File::open(name).unwrap();
                             game_file.read_to_end(&mut rom).unwrap();
 
                             chip8.reset();
@@ -161,6 +162,7 @@ async fn main() {
             });
         }
 
+        // shows the slider that allows the user to change the game speed
         if show_speed {
             let window = widgets::Window::new(2, vec2(425., 25.), vec2(600., 60.)).movable(false);
 
@@ -169,6 +171,7 @@ async fn main() {
             });
         }
 
+        // rounds the speed to the nearest whole number
         speed = speed.round();
         
         // will only start playing the audio if it isnt alreadly playing

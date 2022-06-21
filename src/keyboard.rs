@@ -35,15 +35,15 @@ impl Keyboard {
     }
 
     pub fn is_down(&self, key: u8) -> bool {
-        return self.keys[key as usize];
+        self.keys[key as usize]
     }
 
     pub fn just_pressed(&self) -> Option<u8> {
-        return if let Some(key) = get_last_key_pressed() {
+        if let Some(key) = get_last_key_pressed() {
             let mut ret = None;
             
-            for i in 0..KEYS.len() {
-                if key == KEYS[i] {
+            for (i, current_key) in KEYS.iter().enumerate() {
+                if key == *current_key {
                     ret = Some(i as u8);
                     break;
                 }
@@ -52,6 +52,6 @@ impl Keyboard {
             ret
         } else {
             None
-        };
+        }
     }
 }

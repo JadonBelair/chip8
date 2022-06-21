@@ -43,9 +43,7 @@ impl Chip8 {
     pub fn new() -> Self {
         let mut ram = [0; 4096];
 
-        for i in 0..FONT.len() {
-            ram[i] = FONT[i];
-        }
+        ram[..FONT.len()].copy_from_slice(&FONT[..]);
 
         Self {
             keyboard: Keyboard::new(),
@@ -62,9 +60,7 @@ impl Chip8 {
     }
 
     pub fn load_rom(&mut self, bytes: &Vec<u8>) {
-        for i in 0..bytes.len() {
-            self.ram[0x200 + i] = bytes[i];
-        }
+        self.ram[512..(bytes.len()+512)].copy_from_slice(&bytes[..]);
     }
 
     pub fn run_instruction(&mut self) {
@@ -213,7 +209,7 @@ impl Chip8 {
     }
 
     pub fn get_display(&self) -> [[u8; 64]; 32] {
-        return self.display.get_screen();
+        self.display.get_screen()
     }
 
     pub fn draw_sprite(&mut self, x: u8, y: u8, height: u8) -> bool {
