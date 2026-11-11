@@ -1,5 +1,5 @@
 use crate::{keyboard::Keyboard, display::Display};
-use rand::{thread_rng, prelude::ThreadRng, Rng};
+use rand::{RngExt, prelude::ThreadRng};
 
 const FONT: [u8; 80] = [
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -55,7 +55,7 @@ impl Chip8 {
             st: 0,
             pc: 0x200,
             stack: Vec::new(),
-            rng: thread_rng()
+            rng: rand::rng()
         }
     }
 
@@ -142,7 +142,7 @@ impl Chip8 {
             },
             0xA => self.i = nnn,
             0xB => self.pc = (nnn.wrapping_add(self.v[0] as u16)) as usize,
-            0xC => self.v[x] = self.rng.gen_range(0..=255) & nn,
+            0xC => self.v[x] = self.rng.random_range(0..=255) & nn,
             0xD => {
                 let vx = self.v[x];
                 let vy = self.v[y];

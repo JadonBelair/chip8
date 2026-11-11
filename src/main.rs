@@ -18,7 +18,7 @@ fn window_conf() -> Conf {
         window_height: (32 * CELL_SIZE) + Y_OFFSET as i32,
         high_dpi: true,
         fullscreen: false,
-        window_resizable: false,
+        // window_resizable: false,
         ..Default::default()
     }
 }
@@ -27,13 +27,15 @@ fn window_conf() -> Conf {
 async fn main() {
 
     // gets the users default audio output device
-    let device = rodio::default_output_device().unwrap();
-    let sink = rodio::Sink::new(&device);
+    let sink = rodio::DeviceSinkBuilder::open_default_sink().unwrap();
     
     // generates the sine wave for the sound
-    let source = rodio::source::SineWave::new(440);
-    sink.append(source);
-    sink.pause();
+    let source = rodio::source::SineWave::new(440.0);
+    sink.mixer().add(source);
+    // sink.append(source);
+    // sink.pause();
+    let player = rodio::Player::connect_new(sink.mixer());
+    player.pause();
 
     let mut playing = false;
 
@@ -47,7 +49,7 @@ async fn main() {
     let mut rom: Vec<u8> = vec![0x12, 0x00];
 
     // gets all the games from the roms directory
-    let games: Vec<String> = if let Ok(dir) = read_dir(".\\roms") {
+    let games: Vec<String> = if let Ok(dir) = read_dir("roms") {
         dir.map(|x| x.unwrap().path().to_str().unwrap().to_owned()).collect()
     } else {
         Vec::new()
@@ -176,13 +178,13 @@ async fn main() {
         
         // will only start playing the audio if it isnt alreadly playing
         if !playing && chip8.st > 0 && !paused {
-            sink.play();
+            player.play();
             playing = true;
         }
 
         // stops the audio and allows it to be played again
         if chip8.st == 0 || paused {
-            sink.pause();
+            player.pause();
             playing = false;
         }
 
